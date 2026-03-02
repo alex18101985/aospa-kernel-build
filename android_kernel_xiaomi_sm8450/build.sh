@@ -122,7 +122,7 @@ m() {
 	    KBUILD_BUILD_USER=alex KBUILD_BUILD_HOST=github-build \
 		KCFLAGS="-pipe" \
         KCPPFLAGS="-pipe" \
-        LDFLAGS="-Wl,--threads" \
+        LDFLAGS="-Wl,--threads=all" \
         DTC_EXT="$PREBUILTS_DIR/bin/dtc" \
         DTC_OVERLAY_TEST_EXT="$PREBUILTS_DIR/bin/ufdt_apply_overlay" \
         TARGET_PRODUCT=$TARGET $@ || exit $?
