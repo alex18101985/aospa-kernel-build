@@ -66,7 +66,7 @@ jobs:
           curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
 #          cd KernelSU
 #          git fetch origin
-#          git checkout 28fedfa
+#          git checkout dc1f174
       - name: Patch with custom configurations
         run: |
           cp -rvf aospa-kernel-build/android_kernel_xiaomi_sm8450/. kernel_platform/xiaomi/sm8450
