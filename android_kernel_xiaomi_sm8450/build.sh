@@ -253,6 +253,9 @@ m ./scripts/kconfig/merge_config.sh $DEFCONFIGS vendor/${TARGET}_GKI.config
 scripts/config --file out/.config \
     --set-str LOCALVERSION "-AOSPA-Vauxite-Marble" \
     -d LOCALVERSION_AUTO \
+	-e CONFIG_KSU_SYSCALL_HOOK \
+    -e CONFIG_KRETPROBES \
+    -e CONFIG_HAVE_SYSCALL_TRACEPOINTS \
     -m CONFIG_KSU
 $NO_LTO && {
     scripts/config --file out/.config \
