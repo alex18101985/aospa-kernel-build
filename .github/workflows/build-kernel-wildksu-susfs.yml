@@ -113,9 +113,3 @@ jobs:
           name: kernel-blobs
           path: AnyKernel3-pzqqt/*
           compression-level: 9
-      - name: Upload Wild KSU module artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: wildksu-module
-          path: kernel_platform/xiaomi/sm8450/out/kernelsu.ko
-          compression-level: 9
