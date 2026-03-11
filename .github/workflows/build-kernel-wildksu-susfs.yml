@@ -3,7 +3,6 @@ on:
   workflow_dispatch:
 env:
   CLANG_DIR: clang-r510928
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   KBUILD_BUILD_USER: alex
   KBUILD_BUILD_HOST: github-build
 jobs:
@@ -28,11 +27,11 @@ jobs:
       - name: Increase file limit
         run: |
           sudo sysctl -w vm.swappiness=100
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
         with:
           path: aospa-vauxite-gki-kernel
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: '3.x'
       - name: Setup build environment
@@ -47,7 +46,7 @@ jobs:
           repo sync
           mkdir -p kernel_platform/device/xiaomi/marble-kernel/dtbs
       - name: Cache Clang
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: kernel_platform/clang
           key: clang-r510928
@@ -110,19 +109,19 @@ jobs:
         id: tag
         run: echo "release_tag=AOSPA_Vauxite_GKI_WildKSU_SUSFS_$(date +'%Y.%m.%d_%H-%M')" >> "$GITHUB_OUTPUT"
       - name: Create release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v2.5.0
         with:
           tag_name: ${{ steps.tag.outputs.release_tag }}
           files: |
             kernel.zip
       - name: Upload kernel artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7.0.0
         with:
           name: kernel
           path: AnyKernel3-marble/*
           compression-level: 9
       - name: Upload blobs artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7.0.0
         with:
           name: kernel-blobs
           path: AnyKernel3-pzqqt/*
