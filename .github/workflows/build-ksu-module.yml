@@ -1,10 +1,10 @@
-name: build-modules
+name: build-ksu-module
 on:
   workflow_dispatch:
 env:
   CLANG_DIR: clang-r510928
 jobs:
-  build-modules:
+  build-ksu-module:
     runs-on: ubuntu-22.04
     steps:
       - name: Free disk space
@@ -21,27 +21,31 @@ jobs:
       - name: Set swap space
         uses: pierotofy/set-swap-space@master
         with:
-          swap-size-gb: 10
-      - uses: actions/checkout@v6
+          swap-size-gb: 16
+      - name: Increase file limit
+        run: |
+          sudo sysctl -w vm.swappiness=100
+      - name: Check repository
+        uses: actions/checkout@v6.0.2
         with:
-          path: aospa-kernel-build
+          path: aospa-vauxite-gki-kernel
       - name: Setup Python
-        uses: actions/setup-python@v5 
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: '3.x'
       - name: Setup build environment
         run: |
           sudo apt-get update
-            sudo apt-get install -y curl git ccache pngcrush schedtool maven lib32ncurses5-dev xsltproc libxml2-utils squashfs-tools lzop flex build-essential bc libssl-dev libswitch-perl libxml-simple-perl zip unzip g++-multilib bison gperf zlib1g-dev automake device-tree-compiler
+          sudo apt-get install -y bc flex bison libssl-dev build-essential device-tree-compiler ccache git curl
           sudo curl --create-dirs -o /usr/local/bin/repo -L https://storage.googleapis.com/git-repo-downloads/repo
           sudo chmod a+rx /usr/local/bin/repo
       - name: Clone repo and sync
         run: |
-          repo init -u https://github.com/alex18101985/aospa-kernel-build -b "$(git -C aospa-kernel-build branch --show-current)" -m manifest.xml --depth=1
+          repo init -u https://github.com/alex18101985/aospa-vauxite-gki-kernel -b "$(git -C aospa-vauxite-gki-kernel branch --show-current)" -m manifest.xml --depth=1
           repo sync
           mkdir -p kernel_platform/device/xiaomi/marble-kernel/dtbs
       - name: Cache Clang
-        uses: actions/cache@v4
+        uses: actions/cache@v5.0.3
         with:
           path: kernel_platform/clang
           key: clang-r510928
@@ -59,26 +63,18 @@ jobs:
           else
             echo "Using cached ${CLANG_DIR}"
           fi
-      - name: Include KernelSU
-        run: |
-          cd kernel_platform/xiaomi/sm8450
-          rm -rf KernelSU
-          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
-#          cd KernelSU
-#          git fetch origin
-#          git checkout 28fedfa
       - name: Patch with custom configurations
         run: |
-          cp -rvf aospa-kernel-build/android_kernel_xiaomi_sm8450/. kernel_platform/xiaomi/sm8450
+          cp -rvf aospa-vauxite-gki-kernel/android_kernel_xiaomi_sm8450/. kernel_platform/xiaomi/sm8450
           cd kernel_platform/xiaomi/sm8450
           patch -p1 < no-strict-error.patch
-      - name: Build modules
+      - name: Build KernelSU module
         run: |
           cd kernel_platform/xiaomi/sm8450
           export PATH=$PWD/kernel_platform/clang/${CLANG_DIR}/bin:$PATH
           ./build.sh marble --only-modules
-      - name: Upload module artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload KernelSU module artifact
+        uses: actions/upload-artifact@v7.0.0
         with:
           name: kernelsu-module
           path: kernel_platform/xiaomi/sm8450/out/kernelsu.ko
