@@ -76,32 +76,6 @@ jobs:
           cp -r susfs4ksu/kernel_patches/* kernel_platform/xiaomi/sm8450
           cd kernel_platform/xiaomi/sm8450
           patch -p1 < 50_add_susfs_in_gki-android12-5.10.patch
-      - name: Include BBRv3
-        run: |
-          cd kernel_platform/xiaomi/sm8450
-
-          echo "Downloading BBRv3 source..."
-
-          curl -L https://raw.githubusercontent.com/google/bbr/v3/net/ipv4/tcp_bbr.c \
-            -o net/ipv4/tcp_bbr3.c
-
-          echo "Patching Makefile..."
-          if ! grep -q TCP_CONG_BBR3 net/ipv4/Makefile; then
-            echo 'obj-$(CONFIG_TCP_CONG_BBR3) += tcp_bbr3.o' >> net/ipv4/Makefile
-          fi
-
-          echo "Adding Kconfig entry..."
-          if ! grep -q TCP_CONG_BBR3 net/ipv4/Kconfig; then
-            cat << 'EOF' >> net/ipv4/Kconfig
-
-          config TCP_CONG_BBR3
-          tristate "BBR v3 TCP"
-          depends on TCP_CONG_ADVANCED
-          default y
-          help
-          BBR v3 congestion control algorithm.
-          EOF
-          fi
       - name: Patch with custom configurations
         run: |
           cp -rvf aospa-vauxite-gki-kernel/android_kernel_xiaomi_sm8450/. kernel_platform/xiaomi/sm8450
